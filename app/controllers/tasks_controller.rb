@@ -1,4 +1,7 @@
 class TasksController < ApplicationController
+  before_action :require_user_logged_in
+  before_action :correct_user, only: [:destroy,:edit]
+  
   def index
      @tasks = Task.all
   end
@@ -44,13 +47,25 @@ class TasksController < ApplicationController
     @task.destroy
 
     flash[:success] = 'Message は正常に削除されました'
-    redirect_to tasks_url
+    #redirect_to tasks_url
+    redirect_to users_url
   end
+  
+  # NEW ADD
+  def correct_user
+    @task = Task.find(params[:id])
+    p @task
+    #unless @task
+    if @task.user_id.to_i != current_user.id.to_i
+      redirect_to users_url
+    end
+  end
+  # NWW ADD END
   
    private
 
   # Strong Parameter
   def task_params
-    params.require(:task).permit(:content , :status)
+    params.require(:task).permit(:content , :status , :user_id)
   end
 end
